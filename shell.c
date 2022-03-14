@@ -1,3 +1,14 @@
+/*
+ Author: Collin Campbell
+ Course: COMP 340, Operating Systems
+ Date: 11 Feb. 2022
+ Description: This file implements the
+ Shell program
+ Compile with: gcc -o shell shell.c
+ Run with: ./shell
+*/
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -35,7 +46,8 @@ int shell_find_file(char *file_name, char *file_path, char file_path_size)
   char pathToSearch[500];              //should never reach this and go over buffer limit
   char *path = strdup(getenv("PATH")); //saves the copy of the path var
 
-  char *tok = path, *end = path;
+  char *tok = path; 
+  char *end = path;
 
   while (tok != NULL)
   {
@@ -66,7 +78,7 @@ int shell_execute(char *file_path, char **argv)
   { //child running code
     execvp(file_path, argv);
   }
-  sleep(1);
+  wait(NULL);
   return 0;
 }
 
@@ -122,9 +134,9 @@ int main(int argc, char *argv[])
     tok = strtok(input, " ");
 
     while (tok != NULL)
-    { //there still more to the command
+    { 
       inputargs[index] = tok;
-      tok = strtok(NULL, " ");
+      tok = strtok(NULL, " "); //still more to the input and telling it to pick up the next token
       index++;
     }
 
@@ -139,19 +151,18 @@ int main(int argc, char *argv[])
       {
         printf("File path %s does not exist\n", inputargs[1]);
       }
-      getcwd(currFilePath, 1000);
     }else if(input[0] == 10){
     
     }
     else
     {
-      if (shell_find_file(inputargs[0], filePath, 'a') == 0)
+      if (shell_find_file(inputargs[0], filePath, 'a') == 0 && inputargs[0][0] != '.')
       {
-        shell_execute(filePath, NULL); //run code from the bin
+        shell_execute(filePath, inputargs); //run code from the PATH
       }
       else if (shell_file_exists(inputargs[0]) == 0)
       {
-        shell_execute(inputargs[0], NULL); //run code absolute path
+        shell_execute(inputargs[0], inputargs); //run code absolute path
       }
     }
   }
